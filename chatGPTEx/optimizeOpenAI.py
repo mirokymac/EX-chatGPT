@@ -15,6 +15,7 @@ import json
 import os
 import time
 
+BASE_URI = "https://api.openai.com/v1/chat/completions"
 ENGINE = os.environ.get("GPT_ENGINE") or "gpt-3.5-turbo"
 ENCODER = tiktoken.get_encoding("gpt2")
 program_path = os.path.realpath(__file__)
@@ -56,6 +57,7 @@ class ExChatGPT:
         engine=None,
         proxy=None,
         api_proxy=None,
+        uri_overwrite=None,
         max_tokens: int = 3000,
         temperature: float = 0.5,
         top_p: float = 1.0,
@@ -70,6 +72,7 @@ class ExChatGPT:
         self.apiTimeInterval = apiTimeInterval
         self.engine = engine or ENGINE
         self.session = requests.Session()
+        self.uri = BASE_URI if not uri_overwrite else uri_overwrite
         self.api_keys = PQ()
         self.trash_api_keys = PQ()
         for key in api_keys:
@@ -207,7 +210,7 @@ class ExChatGPT:
         self.__truncate_conversation(convo_id=convo_id)
         apiKey = self.get_api_key()
         response = self.session.post(
-            "https://api.openai.com/v1/chat/completions",
+            self.uri,
             headers={
                 "Authorization": f"Bearer {kwargs.get('api_key', apiKey)}"
             },

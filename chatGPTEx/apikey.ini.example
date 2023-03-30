@@ -1,14 +1,50 @@
 [Google]
+; 按照数量可以更改数字
+; 从0开始
 GOOGLE_API_KEY0 = x
 SEARCH_ENGINE_ID0 = x
+
+; 跳过代理服务器
+ignore_proxy = False
+
+
 [OpenAI]
+; 按照数量可以更改数字
+; 从0开始
 key0 = sk-xxxx
-key1 = sk-xxxx
-key2 = sk-xxxx
+;key1 = sk-xxxx
+;key2 = sk-xxxx
+
+; 使用反向代理地址替代，留空即为默认
+; https://api.openai.com/v1/chat/completions
+;uri_overwrite = 
+
+; 跳过代理服务器
+ignore_proxy = True
+
+
 [WolframAlpha]
+; 按照数量可以更改数字
+; 从0开始
 WOLFRAMALPHA_APP_ID0 = xxxx
+; 跳过代理服务器
+ignore_proxy = False
+
+
+[Wiki]
+; 跳过代理服务器
+;ignore_proxy = False
+
+
 [Proxy]
-api_proxy = 
+; 代理服务器，如
+; http://127.0.0.1:10809
+; 需要账号验证时
+; http://user:pass@127.0.0.1:10809
+;api_proxy = 
+
+
 [Azure]
 subscriptionKey = xxx
 region = xxx
+ignore_proxy = False

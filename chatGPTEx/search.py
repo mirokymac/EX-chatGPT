@@ -18,10 +18,10 @@ config.read(config_path)
 if not config.has_section('OpenAI'):
     print("OpenAI section doesn't exist in config file!")
     exit()
-API_PROXY = None
+API_PROXY = proxy_setting =  None
 if 'Proxy' in config and 'api_proxy' in config['Proxy']:
     API_PROXY = config['Proxy']['api_proxy']
-    if(API_PROXY == ''):
+    if API_PROXY == '':
         API_PROXY = None
 openAIAPIKeys = []
 try:
@@ -32,10 +32,22 @@ try:
 except configparser.Error as e:
     print(f"Error reading config file: {str(e)}")
     exit()
-chatbot = ExChatGPT(api_keys=openAIAPIKeys,apiTimeInterval=20,proxy=API_PROXY)
+if not bool(config['OpenAI'].get('ignore_proxy', False)):
+    proxy_setting = API_PROXY
+OPENAI_URI = config['OpenAI'].get('uri_overwrite', None)
+if OPENAI_URI == '':
+    OPENAI_URI = None
+chatbot = ExChatGPT(
+    api_keys=openAIAPIKeys,
+    apiTimeInterval=20,
+    uri_overwrite=OPENAI_URI,
+    proxy=proxy_setting)
 
 googleAPIKeys = []
 SEARCH_ENGINE_IDs = []
+proxy_setting = None
+if not bool(config['Google'].get('ignore_proxy', False)):
+    proxy_setting = API_PROXY
 try:
     items = config.items('Google')
     for key, value in items:
@@ -45,20 +57,29 @@ try:
             SEARCH_ENGINE_IDs.append(value)
     for i in range(min(len(googleAPIKeys),len(SEARCH_ENGINE_IDs))):
         googleAPIKeys[i] = (googleAPIKeys[i],SEARCH_ENGINE_IDs[i])
-    Google = GoogleSearchAPI(googleAPIKeys,proxy=API_PROXY)
+    Google = GoogleSearchAPI(googleAPIKeys,proxy=proxy_setting)
 except configparser.Error as e:
     print(f"Error reading config file: {str(e)}")
 
 WolframAPIKeys = []
+proxy_setting = None
+if not bool(config['WolframAlpha'].get('ignore_proxy', False)):
+    proxy_setting = API_PROXY
 try:
     items = config.items('WolframAlpha')
     for key, value in items:
         if key.startswith('wolframalpha_app_id'):
             WolframAPIKeys.append(value)
-    Wolfram = WolframAPI(WolframAPIKeys,proxy=API_PROXY)
+    Wolfram = WolframAPI(WolframAPIKeys,proxy=proxy_setting)
 except configparser.Error as e:
     print(f"Error reading config file: {str(e)}")
-Wiki = WikiSearchAPI([],proxy=API_PROXY)
+
+proxy_setting = None
+if 'Wiki' not in config or \
+  not bool(config['Wiki'].get('ignore_proxy', False)):
+    proxy_setting = API_PROXY
+
+Wiki = WikiSearchAPI([],proxy=proxy_setting)
 max_token = 1000
 hint_recall_dialog = json.loads(json.dumps({"calls":[{"API":"ExChatGPT","query":"Recall our dialogs…"}]},ensure_ascii=False))
 hint_api_finished = json.loads(json.dumps({"calls":[{"API":"System","query":"API calls finished"}]},ensure_ascii=False))
